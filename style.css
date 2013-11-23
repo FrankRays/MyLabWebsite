@@ -1,0 +1,132 @@
+/*
+Theme Name: FlexLab Website
+Theme URI: 
+Author: CAYdenberg
+Author URI: http://www.caseyy.org/
+Description: This is a starter theme for academic websites. Content management for people, projects, publications, snazzy homepage, etc..
+Version: 1.0
+License: 
+License URI: 
+Tags: academia, labs, professors, science
+Text Domain:
+*/
+
+body {
+	background: #111;
+	color: white;
+}
+
+.container {
+	max-width: 768px;
+}
+
+#titleLineWrapper {
+	background: #333;
+	border-top: 1px solid white;
+}
+
+#titleLine {
+	padding-left: 0px;
+	padding-right: 0px;
+}
+
+h1 {
+	display: inline-block;
+	margin-left: 10px;
+	color: #00FF00;
+	font-weight: bold;
+}
+
+h2 {
+	font-size: 18px;
+	font-style: italic;
+	margin-left: 10px;
+	color: white;
+}
+
+#signIn {
+	float: right;
+	margin: 5px 5px 0px 0px;
+}
+
+.stickyNavbarWrapper {
+	width: 100%;
+}
+
+#navbarWrapper {
+	background: #333;
+	border-bottom: 1px solid white;
+	width: 100%;
+	z-index: 1000;
+}
+
+#navbar {
+	margin-left: auto;
+	margin-right: auto;
+	border: none;
+	background: inherit;
+	margin-bottom: 0px;
+}
+
+#commentsNumber {
+	display: inline-block;
+}
+
+#mobileCommentForm {
+	
+}
+
+.comment {
+	list-style-type: none;
+	margin-left: 5px;
+	border: 1px solid white;
+	padding-left: 4px;
+	margin-bottom: 10px;
+}
+
+.comment-body {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+.comment-reply-link {
+	color: white;
+	background-color: #5cb85c;
+	border: 1px solid #4cae4c;
+	padding: 6px 12px;
+	border-radius: 4px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+}
+
+.comment-reply-link:hover {
+	text-decoration: none;
+	color: white;
+	background-color: #47a447;
+	border-color: #398439;
+}
+
+.honeypot{
+	display: none;
+}
+
+
+#footerWrapper {
+	border-top: 1px solid white;
+	background: #333;
+}
+
+/*Tablet*/
+@media (min-width: 768px) {
+	.navbar-brand {
+		display: none;
+	}
+}
+
+/*Print*/
+@media print {
+	
+}
+
+
+
