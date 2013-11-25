@@ -38,6 +38,8 @@ function lab_comment_form(){
 	comment_form_title();
 	echo '</h3>';
 	?>
+	<h4 class ="alert alert-success" id = "submitOutcome"></h4>
+	<a id = "respond"></a>
 	<form action="http://localhost/wordpress/wp-comments-post.php" method="post" id = "commentForm">
 		<p class="comment-notes">
 			Your email address will not be published. Required fields are marked <span class="required">*</span>
@@ -66,7 +68,7 @@ function lab_comment_form(){
 		</p>
 		<?php comment_id_fields(); ?>
 	</form>
-</div> 
+</div>
 <div class = "clearfix"></div>
 <?php
 }

@@ -37,6 +37,16 @@ h1 {
 	font-weight: bold;
 }
 
+h1 a {
+	color: inherit;
+}
+
+h1 a:hover {
+	color: #00FF00;
+	letter-spacing: 2px;
+	text-decoration: none;
+}
+
 h2 {
 	font-size: 18px;
 	font-style: italic;
@@ -68,12 +78,23 @@ h2 {
 	margin-bottom: 0px;
 }
 
+.carousel-inner {
+	height: 500px;
+}
+
+.sliderImg {
+	height: 300px;
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+
 #commentsNumber {
 	display: inline-block;
 }
 
-#mobileCommentForm {
-	
+#submitOutcome {
+	display: none;
 }
 
 .comment {
@@ -110,6 +131,11 @@ h2 {
 	display: none;
 }
 
+.alert {
+	height: 20px !important;
+	font-size: small;
+	padding: 0px 15px 0px 15px;
+}
 
 #footerWrapper {
 	border-top: 1px solid white;

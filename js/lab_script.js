@@ -4,38 +4,114 @@ $(document).ready(function (){
 	$('#navbarWrapper').sticky({topSpacing: 0, wrapperClassName: 'stickyNavbarWrapper'});
 	$('#mobileCommentForm').hide();
 	
-	
-	$('.comment-reply-link').click(function() {
-		var form = $('#mobileCommentForm').remove();
-		form.slideDown();	
-		//$(this).after('<div class = "clearfix></div>');
-		$(this).parent().after(form);
-		$('#mobileCommentForm').after('<div class = "clearfix"></div>');
-		form.slideDown();
-		return false;
+	$('.comment-reply-link').click(function(e) {
+		e.preventDefault();
+		//find the comment parent and change #comment_parent
+		//value to reflect this
+		var href = $(this).prop('href');
+		var regex = /\?replytocom\=(\d+)/;
+		var results = regex.exec(href);
+		var replyTo = results[1];
+		//move the form to the just after the "Reply" button
+		moveTheForm( $(this), replyTo);
 	})
 	
-	$('#AddYours').click(function() {
-		var form = $('#mobileCommentForm').remove();
-		form.slideDown();	
-		$(this).after(form);
-		$('#mobileCommentForm').after('<div class = "clearfix"></div>');
-		form.slideDown();
+	$('#AddYours').click(function(e) {
+		moveTheForm( $(this), "0" );
 	})
 	
-	/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	FORM VALIDATION
-	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+	resetHandlers();
+	
+	$('.carousel').carousel({
+		interval: 4000,
+		
+	});
+})
+
+function moveTheForm(callingElement, replyTo) {
+	//reset the comment text
+	$('#comment').html("");
+	//set the hidden #comment_parent field with the number of the
+	//comment being replied to
+	$('#comment_parent').val( replyTo );
+	//show the form itself
+	$('#commentForm').show();
+	//hide the div containing the form
+	var form = $('#mobileCommentForm').hide();
+	//move it to the new location
+	form.remove();	
+	if (replyTo != "0") callingElement.parent().after(form);
+	else callingElement.after(form);
+	$('#mobileCommentForm').after('<div class = "clearfix"></div>');
+	$('#submitOutcome').hide();
+	form.slideDown();
+	//unbind and rebind event handlers
+	resetHandlers();
+}
+
+
+function resetHandlers() {
+	$('#contactForm').submit(contactSubmit);
+	
+	//form submission
+	$('#commentForm').unbind();
+	$('#commentForm').submit(ajaxSubmit);
 	
 	//validate name
-	$('.YourName').blur(function() {
+	$('#YourName').unbind();
+	$('#YourName').blur(function() {
 		validateName( $(this).val() )
 	})
+	
 	//validate email
-	$('.YourEmail').blur(function() {
+	$('#YourEmail').unbind();
+	$('#YourEmail').blur(function() {
 		validateEmail( $(this).val() )
 	})
-})
+}
+
+function contactSubmit(){
+	var name = $('#YourName').val();
+	var email = $('#YourEmail').val();
+	if ( validateName(name) && validateEmail(email) ){
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function ajaxSubmit(e) {
+	e.preventDefault();
+	var name = $('#YourName').val();
+	var email = $('#YourEmail').val();
+	if ( validateName(name) && validateEmail(email) ){
+		var formData = $(this).serialize();
+		var actionUrl = $(this).attr('action');
+		$.ajax({ type: 'POST',
+			data: formData,
+			url: actionUrl,
+			beforeSend: function(){
+				$('body').css('cursor', 'wait');
+			},
+			error: function(){
+				$('body').css('cursor', 'default');
+				$('#submitOutcome').removeClass('alert-success');
+				$('#submitOutcome').addClass('alert-danger');
+				$('#submitOutcome').html('Lost conneciton with server.  Please try again in a moment');
+				$('#submitOutcome').slideDown();
+				alert('Lost conneciton with server.  Please try again in a moment');
+			},
+			success: function(){
+				$('body').css('cursor', 'default');
+				$('#submitOutcome').removeClass('alert-danger');
+				$('#submitOutcome').addClass('alert-success');
+				$('#commentForm').slideUp();
+				$('#submitOutcome').html('Your comment has been logged and is awaiting moderation');
+				$('#submitOutcome').slideDown();
+			}
+		})	
+	}
+}
 
 function validateName(text){
 	var warningBox = $('#warningYourName');
@@ -76,3 +152,4 @@ function toggle_warning(message, element) {
 		element.html(message);
 	}
 }
+

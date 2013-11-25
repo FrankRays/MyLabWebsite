@@ -13,7 +13,7 @@
   <meta name = "keywords" content = "research, science, academia, labs, graduate students, education, professors, publications, protocols, papers, citations, altmetrics">
   <link rel = "stylesheet" href = "<?php echo $theme_url; ?>/css/bootstrap.min.css" type = "text/css" media = "all">
   <link rel = "stylesheet" href = "<?php echo $theme_url; ?>/style.css" type = "text/css" media = "all">  
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
   <script src="<?php echo $theme_url; ?>/js/bootstrap.min.js"></script>
   <script src="<?php echo $theme_url; ?>/js/jquery.sticky.js"></script>
   <script src="<?php echo $theme_url; ?>/js/lab_script.js"></script>
@@ -24,7 +24,9 @@
 
 <div id = "titleLineWrapper">
 	<div class = "container"  id = "titleLine">
-		<h1><?php bloginfo('name'); ?></h1>
+		<h1><a href = "<?php echo $url; ?>">
+			<?php bloginfo('name'); ?>		
+		</a></h1>
 		<a href = "<?php echo $url ?>/wp-login.php" id = "signIn" class = "btn btn-success">Sign-in</a>
 		<h2><?php bloginfo('description'); ?></h2>
 	</div>

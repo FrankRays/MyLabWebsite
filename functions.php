@@ -586,7 +586,7 @@ function lab_nav_list() {
 	global $lab_hard_slug;
 	
 	$slugs = array(
-		'home', 'projects', 'people', 'publications',
+		'projects', 'people', 'publications',
 	);
 	if ( get_option('lab_protocols') ) {
 		$slugs[] = 'protocols';

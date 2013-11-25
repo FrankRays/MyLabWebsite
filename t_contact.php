@@ -11,9 +11,11 @@ get_sidebar();
 
 <div class = "container">
 
-	<h2>Send us a message</h2>
-  
 	<?php the_content(); ?>
+	
+	<div id = "contactFormWrapper" class = "col-md-7 col-sm-12">
+	
+		<h3>Send us a message</h3>
 
 	<?php 
 
@@ -34,7 +36,7 @@ get_sidebar();
 		$fail .= validate_message($message);
 		$fail .= validate_honeypot($honeypot);
 		if ( $fail != '' ) {
-			echo '<h6 class = "alert-danger">Your message could not be sent because:<br />';
+			echo '<h4 class = "alert-danger">Your message could not be sent because:<br />';
 			echo $fail;
 			echo '</h6>';
 			contact_form();
@@ -43,9 +45,9 @@ get_sidebar();
 			$subject = 'Contact form email, from: '.$email;
 			$headers = array("Reply-To: $email");
 			if ( wp_mail($to, $subject, $message, $headers)) {
-				echo '<h6 class = "alert alert-success">Thank you for your email. We will reply to you shortly</h6>';
+				echo '<h4 class = "alert alert-success">Thank you for your email. We will reply to you shortly</h4>';
 			} else {
-				echo '<h6 class = "alert alert-warning">Sorry, an unknown error occured. Please try again later.</h6>';
+				echo '<h4 class = "alert alert-warning">Sorry, an unknown error occured. Please try again later.</h4>';
 			}
 		}
 	} 
@@ -54,23 +56,21 @@ get_sidebar();
 <?php
 function contact_form() {
 ?>	
-<form id = "contactForm" class = "col-md-5 col-md-offset-1 col-sm-6 col-sm-offset-1" method = "POST" action = ".">
+<form id = "contactForm" method = "POST" action = ".">
 	<?php wp_nonce_field() ?>
 	<p class = "row form-group">
 		<label for = "YourName">Your Name</label> &nbsp
 		<span class = "alert-danger" id = "warningYourName"></span>
-		<input type = "text" class = "YourName form-control" name = "YourName" value = "" 
-		placeholder = "<Your Name>" tabindex = "1">
+		<input type = "text" id = "YourName" class = "form-control" name = "YourName" value = "" placeholder = "<Your Name>" tabindex = "1">
 	</p>
 	<p class = "row form-group">
 		<label for = "YourEmail">Your Email</label>
 		<span class = "alert-danger" id = "warningYourEmail"></span>
-		<input type = "text" class = "YourEmail form-control" name = "YourEmail" value = "" 
-		placeholder = "<Your Email>" tabindex = "2">
+		<input type = "text" id = "YourEmail" class = "form-control" name = "YourEmail" value = "" placeholder = "<Your Email>" tabindex = "2">
 	</p>
 	<p class = "row form-group">
 		<label for = "Message">Message</label>
-		<textarea class = "Message form-control" name = "Message" tabindex = "3" rows = "10" placeholder = "<Send us an email>"></textarea>
+		<textarea id  = "Message" class = "form-control" name = "Message" tabindex = "3" rows = "10" placeholder = "<Send us an email>"></textarea>
 	</p>
 	<p class = "row form-group honeypot">
 		<input type = "text" name = "honeypot" />
@@ -79,6 +79,7 @@ function contact_form() {
 		<input type = "submit" name = "submit" class = "btn btn-success" id = "submit" value = "Submit" tabindex = "4" />
 	</p>
 </form>
+</div>
 <?php
 }
 ?>
