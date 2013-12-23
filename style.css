@@ -76,6 +76,7 @@ h2 {
 	border: none;
 	background: inherit;
 	margin-bottom: 0px;
+	z-index: 1000;
 }
 
 .carousel-inner {
