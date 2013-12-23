@@ -24,7 +24,9 @@ if ( have_posts() ):
 	
 	<h3><?php the_title(); ?></h3>
 
-	<h5><?php the_time('M j, Y'); ?></h5>
+	<?php if ( $lab_hard_slug != 'projects' ): ?>
+		<h5><?php the_time('M j, Y'); ?></h5>
+	<?php endif; ?>
 
 	<?php the_content(); ?>
 

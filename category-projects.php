@@ -22,9 +22,9 @@ $query->query( array(
 			$query->the_post();
 	?>
 
-	<h3><?php the_title(); ?></h3>
+	<h3><a href = "<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
 
-	<?php the_content(); ?>
+	<?php the_content('<h5>Read more</h5>'); ?>
 
 	<?php endwhile; endif; ?>
 	

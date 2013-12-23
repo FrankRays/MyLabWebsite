@@ -27,7 +27,8 @@
 		<h1><a href = "<?php echo $url; ?>">
 			<?php bloginfo('name'); ?>		
 		</a></h1>
-		<a href = "<?php echo $url ?>/wp-login.php" id = "signIn" class = "btn btn-success">Sign-in</a>
+		<a href = "<?php echo $url ?>/wp-login.php" id = "signIn" class = "btn btn-success"
+		target = "blank">Sign-in</a>
 		<h2><?php bloginfo('description'); ?></h2>
 	</div>
 </div>
