@@ -666,7 +666,7 @@ class lab_publist {
 		//to the url that will be sent to esummary
 		$ids = $dom->getElementsByTagName('Id');
 		//check that publications have been found
-		if ($ids) { //if no ids are found, the function will output "No publications".
+		if ($ids) {
 			foreach ($ids as $id){
 				//build the URL to retrieve individual records
 				$retrieve = $retrieve.$id->nodeValue.",";
@@ -833,8 +833,7 @@ class lab_publist {
 			if ( !add_option('lab_publication_html', $value) ) {
 				update_option('lab_publication_html', $value);
 			}
-		}
-		
+		}	
 	}
 }
 

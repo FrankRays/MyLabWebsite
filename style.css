@@ -79,6 +79,7 @@ h2 {
 }
 
 .carousel-inner {
+	margin-top: 50px;
 	height: 500px;
 }
 
@@ -87,6 +88,50 @@ h2 {
 	display: block;
 	margin-left: auto;
 	margin-right: auto;
+}
+
+.labMemberSummary {
+	display: inline-block;
+	cursor: pointer;
+}
+
+#popupBckgd {
+	display: none;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	z-index: 5000;
+	background: #333333;
+	opacity: 0.8;
+}
+
+.popup {
+	display: none;
+	position: fixed;
+	max-height: 80%;
+	max-width: 500px; 
+	border: 1px solid #00FF00;
+	background: #111;
+	opacity: 1.0 !important;
+	top: 10%;
+	left: 5%;
+	overflow-y: scroll;
+	z-index: 6000;
+	box-shadow: 10px 10px 5px black;
+	-moz-box-shadow: 10px 10px 5px black;
+	-webkit-box-shadow: 10px 10px 5px black;
+}
+
+.popupHeader {
+	background: #333;
+	border-bottom: 1px solid white;
+	margin-bottom: 20px;
+}
+
+.labMemberFullPic {
+	margin-top: 10px;
+	margin-bottom: 10px;
 }
 
 #commentsNumber {

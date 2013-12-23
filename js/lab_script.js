@@ -26,6 +26,23 @@ $(document).ready(function (){
 		interval: 4000,
 		
 	});
+	
+	$('.labMemberSummary').click(function(e) {
+		var callingId = e.currentTarget.id;
+		var regex = /memSum(\d+)/;
+		var results = regex.exec(callingId);
+		var memberNum = results[1];
+		var targetId = '#labMemFull' + memberNum;
+		var leftMargin = $(document).width() / 2 - $(targetId).width() / 2;
+		$(targetId).css('left', leftMargin + 'px');
+		$('#popupBckgd').fadeIn();
+		$('#popupBckgd').height($(document).height())
+		$(targetId).fadeIn();
+	})
+	$('#popupBckgd').click(function() {
+		$('#popupBckgd').fadeOut();
+		$('.popup').fadeOut();
+	})
 })
 
 function moveTheForm(callingElement, replyTo) {

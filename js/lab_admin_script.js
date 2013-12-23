@@ -5,7 +5,7 @@
 gotPics = false;
 
 jQuery(document).ready(function( $ ) {
-	//select element that will display only if JS is diabled
+	//select element that will display only if JS is disabled
 	$('#labAdminPicSelect').hide();
 	
 	//current value of select list is used to decide which image to show
