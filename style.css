@@ -20,6 +20,11 @@ body {
 	max-width: 768px;
 }
 
+a:hover {
+	color: #00FF00;
+	text-decoration: none !important;
+}
+
 #titleLineWrapper {
 	background: #333;
 	border-top: 1px solid white;
@@ -35,23 +40,27 @@ h1 {
 	margin-left: 10px;
 	color: #00FF00;
 	font-weight: bold;
+	font-family: 'Exo 2', 'Helvetica Nue', Helvetica, Arial, san-serif;
 }
 
 h1 a {
 	color: inherit;
 }
 
-h1 a:hover {
-	color: #00FF00;
-	letter-spacing: 2px;
-	text-decoration: none;
-}
-
 h2 {
-	font-size: 18px;
+	font-size: 24px;
 	font-style: italic;
 	margin-left: 10px;
 	color: white;
+	font-family: 'Exo 2', 'Helvetica Nue', Helvetica, Arial, san-serif;
+}
+
+h3 {
+	font-family: 'Exo 2', 'Helvetica Nue', Helvetica, Arial, san-serif;
+}
+
+h3 a {
+	color: inherit;
 }
 
 #signIn {

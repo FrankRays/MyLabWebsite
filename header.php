@@ -11,6 +11,7 @@
   <meta name = "description" content = "<?php bloginfo('description')?>">
   <meta name = "author" content = "Casey A. Ydenberg">
   <meta name = "keywords" content = "research, science, academia, labs, graduate students, education, professors, publications, protocols, papers, citations, altmetrics">
+  <link href='http://fonts.googleapis.com/css?family=Exo+2:400,500italic' rel='stylesheet' type='text/css'>
   <link rel = "stylesheet" href = "<?php echo $theme_url; ?>/css/bootstrap.min.css" type = "text/css" media = "all">
   <link rel = "stylesheet" href = "<?php echo $theme_url; ?>/style.css" type = "text/css" media = "all">  
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
