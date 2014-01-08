@@ -11,6 +11,10 @@ Tags: academia, labs, professors, science
 Text Domain:
 */
 
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+GENERAL RULES
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
 body {
 	background: #111;
 	color: white;
@@ -21,9 +25,13 @@ body {
 }
 
 a:hover {
-	color: #00FF00;
+	color: #00FF00 !important;
 	text-decoration: none !important;
 }
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TITLE LINE AREA 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 #titleLineWrapper {
 	background: #333;
@@ -55,14 +63,6 @@ h2 {
 	font-family: 'Exo 2', 'Helvetica Nue', Helvetica, Arial, san-serif;
 }
 
-h3 {
-	font-family: 'Exo 2', 'Helvetica Nue', Helvetica, Arial, san-serif;
-}
-
-h3 a {
-	color: inherit;
-}
-
 #signIn {
 	float: right;
 	margin: 5px 5px 0px 0px;
@@ -86,7 +86,43 @@ h3 a {
 	background: inherit;
 	margin-bottom: 0px;
 	z-index: 1000;
+	color: white;
 }
+
+#navbar a {
+	color: white;
+}
+
+#navbar .active a {
+	color: #333;
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+	-webkit-border-top-left-radius: 5px;
+	-webkit-border-top-right-radius: 5px;
+	-moz-border-radius-topleft: 5px;
+	-moz-border-radius-topright: 5px;
+}
+
+#navbar .active a:hover {
+	color: #333 !important;
+	cursor: default;
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+MAIN CONTENT - GENRAL RULES
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+h3 {
+	font-family: 'Exo 2', 'Helvetica Nue', Helvetica, Arial, san-serif;
+}
+
+h3 a {
+	color: inherit;
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~
+CAROUSEL
+~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 .carousel-inner {
 	margin-top: 50px;
@@ -99,6 +135,10 @@ h3 a {
 	margin-left: auto;
 	margin-right: auto;
 }
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~
+LAB MEMBER
+~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 .labMemberSummary {
 	display: inline-block;
@@ -143,6 +183,10 @@ h3 a {
 	margin-top: 10px;
 	margin-bottom: 10px;
 }
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~
+BLOG
+~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 #commentsNumber {
 	display: inline-block;
@@ -196,6 +240,11 @@ h3 a {
 	border-top: 1px solid white;
 	background: #333;
 }
+
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+MEDIA QUERIES
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 /*Tablet*/
 @media (min-width: 768px) {
