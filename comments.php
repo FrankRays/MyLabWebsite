@@ -27,11 +27,6 @@ if ( $comments ) {
 }
 
 
-
-
-
-
-
 function lab_comment_form(){
 	echo '<div id = "mobileCommentForm" class = "col-md-7 col-sm-12">';
 	echo '<h3>';

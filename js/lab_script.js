@@ -6,18 +6,21 @@ $(document).ready(function (){
 	
 	$('.comment-reply-link').click(function(e) {
 		e.preventDefault();
+		$('.comment-reply-link').show();
 		//find the comment parent and change #comment_parent
 		//value to reflect this
 		var href = $(this).prop('href');
 		var regex = /\?replytocom\=(\d+)/;
 		var results = regex.exec(href);
 		var replyTo = results[1];
-		//move the form to the just after the "Reply" button
+		//move the form to just after the "Reply" button
 		moveTheForm( $(this), replyTo);
+		$(this).hide();
 	})
 	
 	$('#AddYours').click(function(e) {
 		moveTheForm( $(this), "0" );
+		$(this).hide();
 	})
 	
 	resetHandlers();
@@ -46,6 +49,9 @@ $(document).ready(function (){
 })
 
 function moveTheForm(callingElement, replyTo) {
+	//make sure all buttons are shown
+	$('#AddYours').show();
+	$('.comment-reply-link').show();
 	//reset the comment text
 	$('#comment').html("");
 	//set the hidden #comment_parent field with the number of the

@@ -8,16 +8,13 @@ get_sidebar();
 $users = get_users( array (
 	'orderby' => 'meta_value_num',
 	'order' => 'ASC',
-	'meta_key' => '_lab_position'
+	'meta_key' => '_lab_position',
+	'nopaging' => 'true',
 ) );
 
 ?>
 
 <div class = "container">
-
-	<div class = "row">
-		<h1>Lab members</h1>
-	</div>
 	
 	<?php
 	$mem_num = 0;

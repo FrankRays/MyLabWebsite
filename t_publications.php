@@ -14,7 +14,7 @@ get_sidebar();
 	<?php
 	//PUBLICATIONS LIST GOES HERE
 	if ( $pubs_list = lab_display_pubs( 0 ) ) {
-		echo '<h1>Publications</h1>';
+		echo '<h3>Publications</h3>';
 		echo $pubs_list;
 	} else {
 		echo 'Publication list not found or not properly configured';

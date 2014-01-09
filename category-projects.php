@@ -10,7 +10,8 @@ $query->query( array(
 	'post_type' => 'project',
 	'orderby' => 'meta_value_num',
 	'meta_key' => '_lab_post_order',
-	'order' => 'ASC'
+	'order' => 'ASC',
+	'nopaging' => 'true',
 ) );
 
 ?>
@@ -24,7 +25,7 @@ $query->query( array(
 
 	<h3><a href = "<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
 
-	<?php the_content('<h5>Read more</h5>'); ?>
+	<?php the_content('<h4>Read more</h4>'); ?>
 
 	<?php endwhile; endif; ?>
 	

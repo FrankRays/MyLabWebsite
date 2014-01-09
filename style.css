@@ -18,6 +18,8 @@ GENERAL RULES
 body {
 	background: #111;
 	color: white;
+	font-size: 16px;
+	font-family: 'Exo 2', 'Helvetica Nue', Helvetica, Arial, san-serif;
 }
 
 .container {
@@ -27,6 +29,10 @@ body {
 a:hover {
 	color: #00FF00 !important;
 	text-decoration: none !important;
+}
+
+.align-right {
+	text-align: right;
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -113,11 +119,25 @@ MAIN CONTENT - GENRAL RULES
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 h3 {
-	font-family: 'Exo 2', 'Helvetica Nue', Helvetica, Arial, san-serif;
+	font-family: 'Palatino Linotype', 'Palatino', 'Georgia', serif;
+	color: #00FF00;
 }
 
 h3 a {
 	color: inherit;
+}
+
+h4 {
+	font-family: 'Palatino Linotype', 'Palatino', 'Georgia', serif;
+	font-style: italic;
+	color: white;
+	display: block;
+}
+
+label {
+	font-family: 'Palatino Linotype', 'Palatino', 'Georgia', serif;
+	font-style: italic;
+	color: white;
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -185,11 +205,25 @@ LAB MEMBER
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~
+PROTOCOLS LIST 
+~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+.inlineDate {
+	font-style: italic;
+	color: white;
+	font-size: 18px;
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~
 BLOG
 ~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+#topLevelReply {
+	margin-bottom: 10px;
+}
+
 #commentsNumber {
-	display: inline-block;
+	display: block;
 }
 
 #submitOutcome {

@@ -14,25 +14,23 @@ $query->query( array(
 	'post_type' => 'protocol',
 	'orderby' => 'meta_value_num',
 	'meta_key' => '_lab_post_order',
-	'order' => 'ASC'
+	'order' => 'ASC',
+	'nopaging' => 'true'
 ) );
 
 ?>
 
 <div class = "container">
 
-These are the protocols:
-
-	<ul>
+	<ul id = "protocolsList">
 
 		<?php if ( $query->have_posts() ):
 			while ( $query->have_posts() ):
 				$query->the_post();
 		?>
 
-		<li><a href = "<?php the_permalink(); ?>">
-		<?php the_title(); ?></a> (<i>Last updated</i>: <?php the_time('M j, Y'); ?>)
-		</li>
+		<h3><a href = "<?php the_permalink(); ?>"><?php the_title(); ?></a> &nbsp;
+		<span class = "inlineDate"><?php the_time('M j, Y'); ?></span></h3>
 
 		<?php endwhile; endif; ?>
 

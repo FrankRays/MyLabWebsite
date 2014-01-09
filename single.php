@@ -25,14 +25,17 @@ if ( have_posts() ):
 	<h3><?php the_title(); ?></h3>
 
 	<?php if ( $lab_hard_slug != 'projects' ): ?>
-		<h5><?php the_time('M j, Y'); ?></h5>
+		<h4><?php the_time('M j, Y'); ?></h4>
 	<?php endif; ?>
 
 	<?php the_content(); ?>
 
 	<?php if ( $lab_hard_slug == 'blog' ): ?> 
-		<h3 id = "commentsNumber"><?php comments_number('Be the first to comment', 'There is one comment', 'There are % comments'); ?></h3>
-		<button class = "btn btn-success" id = "AddYours">Add Yours </button><br />
+		<div id = "topLevelReply">
+			<h4 id = "commentsNumber"><?php comments_number('Be the first to comment', 'There is one comment', 'There are % comments'); ?></h4>
+			<button class = "btn btn-success" id = "AddYours">Add Yours </button><br />
+		</div>
+		<div class = "clearfix"></div>
 		<div id = "comments"><?php comments_template(); ?></div>
 	<?php endif; ?>
 
