@@ -137,6 +137,7 @@ function lab_settings_menu() {
 	add_dashboard_page( 'FlexLab Settings', 'FlexLab Settings', 'edit_users',
 	'lab-settings', 'lab_settings_page' );
 	add_action('admin_init', 'lab_register_settings');
+	wp_enqueue_script('editor.js');
 }
 
 //hooked by: lab_settings_menu
@@ -148,8 +149,8 @@ function lab_register_settings() {
 	register_setting( 'lab_settings_group', 'lab_pubsource' );
 	register_setting( 'lab_settings_group', 'lab_identifier' );
 	register_setting( 'lab_settings_group', 'lab_impactstory_key' );
+	register_setting( 'lab_settings_group', 'lab_footertext');
 	//retrieve publication information
-	//CHECK: WILL CALLING THIS HERE SLOW DOWN ALL ADMIN PAGE LOADS???
 	$pubsource = get_option('lab_pubsource');
 	$identifier = get_option('lab_identifier');
 	$is_key = get_option('lab_impactstory_key');
@@ -239,8 +240,21 @@ function lab_settings_page() {
 				value = "<?php echo esc_attr__( get_option( 'lab_impactstory_key' ) ); ?>"></td>
 				<td><i>Email <a href = "mailto:team@impactstory.org">team@impactstory.org</a> to request your <strong>free</strong> API key</i></td>
 				</tr>
+			
+				<tr><td colspan = "3">
+					<h3>Footer Text</h3>
+				</td></tr>
 				
+				<tr><td colspan = "3">	
+					<?php wp_editor(get_option('lab_footertext'), 'footertext', 
+						array('textarea_name' => 'lab_footertext',
+					) ); ?>	
+				</td></tr>
+			
 			</table>
+			
+			
+			
 			
 			<p class = "submit">
 				<input type = "submit" class = "button-primary"
@@ -248,7 +262,9 @@ function lab_settings_page() {
 			</p>			
 				
 		</form>
+
 	</div>
+
 		
 <?php
 }
@@ -652,7 +668,6 @@ class lab_publist {
 		//make a call to pubmeds esearch utility, to retrieve pmids associated with an authors name or
 		//other search
 		$result = wp_remote_retrieve_body( wp_remote_get($search) );
-		if ( !$result ) die('There was a problem getting data from PubMed');
 		//open a new DOM and dump the results from esearch
 		$dom = new DOMDocument();
 		$dom->loadXML($result);
@@ -728,7 +743,7 @@ class lab_publist {
 	function import_from_orcid($orcid_id){
 		$search = 'http://feed.labs.orcid-eu.org/'.$orcid_id.'.json';
 		$result = wp_remote_retrieve_body( wp_remote_get($search) );
-		if ( !$result ) die('There was a problem getting data from ORCiD');
+		//if ( !$result ) die('There was a problem getting data from ORCiD');
 		$works = json_decode($result);
 		$paper_num = 0;
 		foreach ($works as $work){

@@ -74,7 +74,8 @@ $count = $query->post_count;
 </div>
 
 <?php
-
+$query->rewind_posts();
+unset($query);
 get_footer();
 
 ?>
