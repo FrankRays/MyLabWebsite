@@ -551,12 +551,6 @@ function lab_save_post( $post_id ){
 	} else return $post_id;
 }
 
-//nav menu 
-//instead of validation: frequent access to particular pages via AJAX/popups
-//need client-side first
-//may need to attach custom categories or slugs at Projects, Protocols and "posts"
-//(ie "blog")
-
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 CLIENT-SIDE FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
