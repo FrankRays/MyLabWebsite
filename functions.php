@@ -347,7 +347,9 @@ function lab_user_meta( $user ) {
 				<?php
 					$images = get_posts( array( 
 						'post_type' => 'attachment',
-						'post_status' => 'any' ) );
+						'post_status' => 'any', 
+						'nopaging' => 'true',
+					) );
 					foreach ( $images as $image ) {
 						if ( strpos($image->post_mime_type, 'image') !== FALSE ) {
 							echo '<option value = "'.$image->guid;
@@ -382,14 +384,6 @@ function lab_user_meta( $user ) {
 			<td><i>For ORCiD, this is a 16-digit number (e.g. 0000-0003-1419-2405).<br>
 		For PubMed, enter a unique query string (e.g. Ydenberg CA AND (Brandeis[affiliation] OR Princeton[affiliation]))</i></td>
 			</tr>
-		
-			<tr>
-			<td><label for = "impactstory_key">ImpactStory API key</label><br>
-			<i>(Optional)</i></td>
-			<td><input type = "text" name = "impactstory_key" 
-			value = "<?php echo esc_attr__( $is_key ); ?>"></td>
-			<td><i>Email <a href = "mailto:team@impactstory.org">team@impactstory.org</a> to request your <strong>free</strong> API key</i></td>
-			</tr>
 			
 		</table>	
 	</div>
@@ -421,7 +415,6 @@ function lab_update_user_meta( $user_id ) {
 	$picture  = isset( $_POST['picture'] )  ? $_POST['picture'] : 'notshown';
 	$pubsource = isset( $_POST['pubsource'] ) ? $_POST['pubsource'] : '';
 	$identifier = isset( $_POST['identifier'] ) ? $_POST['identifier'] : '';
-	$is_key = isset( $_POST['impactstory_key'] ) ? $_POST['impactstory_key'] : '';
 	$current_user = wp_get_current_user();
 	$current_id = $current_user->ID;
 	if ( ($user_id == $current_id) || current_user_can( 'edit_user' ) ) {
@@ -437,9 +430,7 @@ function lab_update_user_meta( $user_id ) {
 		if ( !add_user_meta($user_id, '_lab_identifier', $identifier, TRUE ) ) {
 			update_user_meta($user_id, '_lab_identifier', $identifier );
 		}
-		if ( !add_user_meta($user_id, '_lab_is_key', $is_key, TRUE ) ) {
-			update_user_meta($user_id, '_lab_is_key', $is_key);
-		}
+		$is_key = get_option( 'lab_impactstory_key' );
 		//retrieve publication information
 		$impactpubs = new lab_publist($user_id, $is_key );
 		if ( $pubsource == 'pubmed' ) {
@@ -668,6 +659,10 @@ class lab_publist {
 		//make a call to pubmeds esearch utility, to retrieve pmids associated with an authors name or
 		//other search
 		$result = wp_remote_retrieve_body( wp_remote_get($search) );
+		if ( !$result ) {
+			throw new Exception('There was a problem getting data from PubMed');
+			return False;
+		}
 		//open a new DOM and dump the results from esearch
 		$dom = new DOMDocument();
 		$dom->loadXML($result);
@@ -743,7 +738,10 @@ class lab_publist {
 	function import_from_orcid($orcid_id){
 		$search = 'http://feed.labs.orcid-eu.org/'.$orcid_id.'.json';
 		$result = wp_remote_retrieve_body( wp_remote_get($search) );
-		//if ( !$result ) die('There was a problem getting data from ORCiD');
+		if ( !$result ) {
+			throw new Exception('There was a problem getting data from ORCiD');
+			return False;
+		}
 		$works = json_decode($result);
 		$paper_num = 0;
 		foreach ($works as $work){
@@ -1042,28 +1040,5 @@ function is_selected($select, $set) {
 	if ($select == $set) return ' selected = "selected" ';
 	else return '';
 } 
-
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~
-FOOTLOGGER DEBUG CODE
-This code is used to debug 
-stuff hooking into the admin
-panel.
-~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-$footlogger = array();
-
-function footlogger($logged_data) {
-	global $footlogger;
-	$footlogger[] = 'test';
-	$footlogger[] = $logged_data;
-}
-
-add_action('admin_footer', 'footlogger_output');
-function footlogger_output() {
-	global $footlogger;
-	echo 'Log:<br />';
-	print_r($footlogger);
-}
 
 ?>
