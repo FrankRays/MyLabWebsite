@@ -5,7 +5,12 @@ get_sidebar();
 
 ?>
 
-This is the default (index) page
+<div class = "container">
+	<h1>We can't find what you're looking for.</h1>
+
+	<p><a href = "<?php echo home_url(); ?>">Back to homepage</a></p>
+</div>
+
 
 <?php
 
