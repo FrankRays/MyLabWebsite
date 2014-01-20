@@ -52,7 +52,7 @@ jQuery(document).ready(function( $ ) {
 		var pics = $('#labAdminPicSelect').children().each(function (){
 			var pic = $(this).val();
 			var html = '<img src = "' + pic + '" class = "labAdminChoosePic" />';
-			$('#labAdminPics').append(html);
+			$('#labAdminPicWrap').append(html);
 		})
 		$('.labAdminChoosePic').each(function() {
 			$(this).click(function(event) {
