@@ -45,7 +45,7 @@ if ( !$lab_active || $lab_active == 'FALSE' ) {
 			'post_name' => 'publications',
 			'post_status' => 'publish',
 		));
-		//hard-reset the post_name to 'contact'
+		//hard-reset the post_name to 'publications'
 		$wpdb->query("UPDATE $wpdb->posts SET post_name = 'publications' WHERE ID = $pub_post");
 		add_post_meta( $pub_post, '_wp_page_template', 't_publications.php', TRUE);
 		update_post_meta( $pub_post, '_wp_page_template', 't_publications.php' );
@@ -56,13 +56,6 @@ if ( !$lab_active || $lab_active == 'FALSE' ) {
 	wp_insert_term( 'Protocol', 'category', array('slug' => 'protocols') );
 	wp_insert_term( 'Lab member', 'category', array('slug' => 'people') );
 	wp_insert_term( 'Project', 'category', array('slug' => 'projects') );
-	
-	//TODO:
-	//go thru every post and assign appropriate category
-	//should look into creating a new taxonomy entirely. The problem is the permalink
-	//structure.
-	//also, should remove the category meta box from the admin since it now won't
-	//do anything
 	
 	//change options
 	update_option( 'default_role', 'contributor');
@@ -501,7 +494,7 @@ function lab_slider_order_box( $post ) {
 	<input type = "text" class = "labAdminNumber" value = "<?php echo $order?>"
 	name = "lab_post_order" />
 	<p><i>This number is used to place images in the animated slider. For best results
-	use images that are at least xxx pixels wide by xxx pixels high. If this image
+	use images that are at least 800 pixels wide by 500 pixels high. If this image
 	does NOT belong in the slider, leave this space blank or enter 0.</i></p>
 	<?php
 }
