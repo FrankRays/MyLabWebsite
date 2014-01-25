@@ -120,14 +120,14 @@ function lab_admin_scripts() {
 
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-FLEXLAB SETTINGS MENU (Dashboard)
+MYLABWEBSITE SETTINGS MENU (Dashboard)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 add_action('admin_menu', 'lab_settings_menu');
 
 //hooked by: admin_menu wp action
 function lab_settings_menu() {
 	//create top-level menu
-	add_dashboard_page( 'FlexLab Settings', 'FlexLab Settings', 'edit_users',
+	add_dashboard_page( 'MyLabWebsite Settings', 'MyLabWebsite Settings', 'edit_users',
 	'lab-settings', 'lab_settings_page' );
 	add_action('admin_init', 'lab_register_settings');
 	wp_enqueue_script('editor.js');
@@ -153,18 +153,18 @@ function lab_register_settings() {
 	} else if ( $pubsource == 'orcid' ) {
 		$impactpubs->import_from_orcid( $identifier );
 	}
-	$impactpubs->write_to_db();
+	if ( count( $impactpubs->papers ) > 0 ) $impactpubs->write_to_db();
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Hooked by: lab_settings_menu
-Output the HTML for the FlexLab settings menu (Dashboard)
+Output the HTML for the MyLabWebsite settings menu (Dashboard)
 Calls: is_checked(), is_selected()
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 function lab_settings_page() {
 	?>
 	<div class = "wrap">
-		<h2>FlexLab Settings</h2>
+		<h2>MyLabWebsite Settings</h2>
 		<form method = "POST" action = "options.php">
 			<?php settings_fields( 'lab_settings_group' ); ?>
 			<table>
@@ -298,7 +298,7 @@ function lab_user_meta( $user ) {
 	?>
 	<div class = "wrap">
 		<hr />
-		<h2>FlexLab Settings</h2>
+		<h2>MyLabWebsite Settings</h2>
 		<br />
 		<table>
 			<tr>
@@ -431,7 +431,7 @@ function lab_update_user_meta( $user_id ) {
 		} else if ( $pubsource == 'orcid' ) {
 			$impactpubs->import_from_orcid( $identifier );
 		}
-		$impactpubs->write_to_db();
+		if ( count( $impactpubs->papers ) > 0 ) $impactpubs->write_to_db();
 	} else {
 		die("<h1>Problem performing requested operation</h1>");
 	}	
@@ -470,13 +470,13 @@ function lab_register_posts() {
 add_action( 'add_meta_boxes', 'lab_add_meta_boxes');
 function lab_add_meta_boxes() {
 	//attachment meta data (to add images to wmuSlider)
-	add_meta_box('labAdminSliderMeta', 'FlexLab Settings', 'lab_slider_order_box',
+	add_meta_box('labAdminSliderMeta', 'MyLabWebsite Settings', 'lab_slider_order_box',
 	'attachment', 'side', 'core');
 	
 	//projects (and protocols) order meta box
 	$screens = array('project', 'protocol');
 	foreach( $screens as $screen ) {
-		add_meta_box('labAdminProjectsMeta', 'FlexLab Settings', 'lab_post_order_box',
+		add_meta_box('labAdminProjectsMeta', 'MyLabWebsite Settings', 'lab_post_order_box',
 		$screen, 'side', 'core');
 	}
 }
@@ -653,7 +653,6 @@ class lab_publist {
 		//other search
 		$result = wp_remote_retrieve_body( wp_remote_get($search) );
 		if ( !$result ) {
-			throw new Exception('There was a problem getting data from PubMed');
 			return False;
 		}
 		//open a new DOM and dump the results from esearch
@@ -732,7 +731,6 @@ class lab_publist {
 		$search = 'http://feed.labs.orcid-eu.org/'.$orcid_id.'.json';
 		$result = wp_remote_retrieve_body( wp_remote_get($search) );
 		if ( !$result ) {
-			throw new Exception('There was a problem getting data from ORCiD');
 			return False;
 		}
 		$works = json_decode($result);
