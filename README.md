@@ -68,6 +68,8 @@ The publication list function of MyLabWebsite is also provided by ImpactPubs, wh
 
 ## To-do list ##
 
+1. Create a theme homepage (and download link containing the latest stable version). Have registered www.mylabwebsite.com for this purpose.
+
 1. Internationalization (beginning with user-facing text)
 
 1. Remove HTML-embedded Bootstrap classes and begin using LESS
