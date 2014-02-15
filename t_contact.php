@@ -53,6 +53,8 @@ get_sidebar();
 	} 
 	
 ?>
+	
+	
 <?php
 function contact_form() {
 ?>	
@@ -85,7 +87,8 @@ function contact_form() {
 ?>
 
 </div>
-
+</div><!--/container-->
+<div class = "clearfix"></div>
 <?php
 get_footer();
 ?>
