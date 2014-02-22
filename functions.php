@@ -91,18 +91,31 @@ function lab_update_lists(){
 		$id = $user->ID;
 		$ids[] = $id;
 	}
+	//id is 0 for the lab publication list. Positive int for each user publication list
 	foreach ( $ids as $id ){
 		$pubsource = $id ? get_user_meta( $id, '_lab_pubsource', TRUE) : get_option('lab_pubsource');
 		//if no entry in meta database (user has not set up their profile), 
 		//then skip to the next one
 		if ( $pubsource == '' ) continue;
 		$identifier = $id ? get_user_meta( $id, '_lab_identifier', TRUE) : get_option('lab_identifier');
-		$is_key = $id ? get_user_meta( $id, '_lab_is_key', TRUE) : get_option('lab_is_key');
-		$impactpubs = new lab_publist( $id, $is_key );
-		if ( $pubsource == 'pubmed' ) $impactpubs->import_from_pubmed( $identifier );
-		if ( $pubsource == 'orcid' ) $impactpubs->import_from_orcid( $identifier );
-		//only write to the database if data was retrieved (in case of problems in search)
-		if ( count( $impactpubs->papers ) > 0 ) $impactpubs->write_to_db();	
+		try {
+			$impactpubs = new impactpubs_publist($id);
+			if ( $pubsource == 'pubmed' ) $impactpubs->import_from_pubmed( $identifier );
+			if ( $pubsource == 'orcid' ) $impactpubs->import_from_orcid( $identifier );
+			//evaluates to false if there are no papers found
+			if ( $html = $impactpubs->get_html() ) {
+				if ( $id ) {
+					if ( !add_user_meta($user_id, '_lab_publication_html', $html, TRUE ) ) {
+						update_user_meta($user_id, '_lab_publication_html', $html );
+					}
+				} else {
+					update_option('lab_publication_html', $html);
+				}
+			}
+		} catch (Exception $e) {
+			//this is a quiet death (occurs during a cron)
+			die();
+		}
 	}
 }
 
@@ -141,19 +154,24 @@ function lab_register_settings() {
 	register_setting( 'lab_settings_group', 'lab_email');
 	register_setting( 'lab_settings_group', 'lab_pubsource' );
 	register_setting( 'lab_settings_group', 'lab_identifier' );
-	register_setting( 'lab_settings_group', 'lab_impactstory_key' );
 	register_setting( 'lab_settings_group', 'lab_footertext');
 	//retrieve publication information
 	$pubsource = get_option('lab_pubsource');
 	$identifier = get_option('lab_identifier');
-	$is_key = get_option('lab_impactstory_key');
-	$impactpubs = new lab_publist(0, $is_key );
-	if ( $pubsource == 'pubmed' ) {
-		$impactpubs->import_from_pubmed( $identifier );	
-	} else if ( $pubsource == 'orcid' ) {
-		$impactpubs->import_from_orcid( $identifier );
+	$impactpubs = new impactpubs_publist(0);		
+	try {
+		if ( $pubsource == 'pubmed' ) {
+			$impactpubs->import_from_pubmed( $identifier );	
+		} else if ( $pubsource == 'orcid' ) {
+			$impactpubs->import_from_orcid( $identifier );
+		}
+		update_option('lab_publication_success', 1);
+		if ( $html = $impactpubs->make_html() ) {
+			update_option('lab_publication_html', $html);
+		}
+	} catch (Exception $e) {
+		update_option('lab_publication_success', -1);
 	}
-	if ( count( $impactpubs->papers ) > 0 ) $impactpubs->write_to_db();
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -226,14 +244,6 @@ function lab_settings_page() {
 			For PubMed, enter a unique query string (e.g. Ydenberg CA AND (Brandeis[affiliation] OR Princeton[affiliation]))</i></td>
 				</tr>
 			
-				<tr>
-				<td><label for = "lab_impactstory_key">ImpactStory API key</label><br>
-				<i>(Optional)</i></td>
-				<td><input type = "text" name = "lab_impactstory_key" 
-				value = "<?php echo esc_attr__( get_option( 'lab_impactstory_key' ) ); ?>"></td>
-				<td><i>Email <a href = "mailto:team@impactstory.org">team@impactstory.org</a> to request your <strong>free</strong> API key</i></td>
-				</tr>
-			
 				<tr><td colspan = "3">
 					<h3>Footer Text</h3>
 				</td></tr>
@@ -275,6 +285,9 @@ add_action( 'edit_user_profile', 'lab_user_meta' );
 //hooks to add user infromation (covers ALL users, including the current user)
 add_action( 'personal_options_update', 'lab_update_user_meta' );
 add_action( 'edit_user_profile_update', 'lab_update_user_meta' );
+
+//hook admin notices: displays a warning when PubMed or ORCiD import fails
+add_action('admin_notices', 'lab_import_pub_warning');
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Display the form elements for adding user meta 
 The wrapping form and submit button is associated with 
@@ -289,11 +302,7 @@ function lab_user_meta( $user ) {
 	$pubsource = get_user_meta( $user_id, '_lab_pubsource', TRUE );
 	if ( $pubsource == '') $pubsource = 'pubmed';
 	$identifier = get_user_meta( $user_id, '_lab_identifier', TRUE );
-	$is_key = get_user_meta( $user_id, '_lab_is_key', TRUE );
 	$identifier = stripslashes($identifier);
-	
-	//NOTE: Should I include server-side form validation? WP will
-	//take care of sanitization, so is JS form validation enough?
 	
 	?>
 	<div class = "wrap">
@@ -425,13 +434,23 @@ function lab_update_user_meta( $user_id ) {
 		}
 		$is_key = get_option( 'lab_impactstory_key' );
 		//retrieve publication information
-		$impactpubs = new lab_publist($user_id, $is_key );
-		if ( $pubsource == 'pubmed' ) {
-			$impactpubs->import_from_pubmed( $identifier );	
-		} else if ( $pubsource == 'orcid' ) {
-			$impactpubs->import_from_orcid( $identifier );
+		try {
+			$impactpubs = new impactpubs_publist($user_id);
+			if ( $pubsource == 'pubmed' ) $impactpubs->import_from_pubmed( $identifier );	
+			if ( $pubsource == 'orcid' ) $impactpubs->import_from_orcid( $identifier );
+			if ( $html = $impactpubs->make_html() ) {
+				if ( !add_user_meta($user_id, '_lab_publication_html', $html, TRUE ) ) {
+					update_user_meta($user_id, '_lab_publication_html', $html);
+				}
+				if ( !add_user_meta($user_id, '_lab_publication_success', 1, TRUE ) ) {
+					update_user_meta($user_id, '_lab_publication_success', 1);
+				} 
+			}
+		} catch (Exception $e) {
+			if ( !add_user_meta( $user_id, '_lab_publication_success', -1, TRUE ) ) {
+				update_user_meta( $user_id, '_lab_publication_success', -1);
+			}
 		}
-		if ( count( $impactpubs->papers ) > 0 ) $impactpubs->write_to_db();
 	} else {
 		die("<h1>Problem performing requested operation</h1>");
 	}	
@@ -561,19 +580,19 @@ function lab_parent_scripts() {
 	//from impactpubs
 	$parent_url = get_template_directory_uri();
 	wp_enqueue_script('ip', $parent_url.'/js/ip_script.js');
-	wp_enqueue_style('ip', $parent_url.'/css/ip_style.css');
 }
 
 function lab_display_pubs( $user_id ) {
 	global $wpdb;
 	if ( $user_id ) {
+		$success = get_user_meta($user_id, '_lab_publication_success', TRUE);
 		$result = get_user_meta($user_id, '_lab_publication_html', TRUE);
-		if ($result == '') $result = FALSE;
 	} else {
+		$success = get_option('lab_publication_success');
 		$result = get_option('lab_publication_html');
 	}
-	//NOTE: SHOULD RETURN FALSE IF PUBLICATIONS NOT FOUND
-	return $result;
+	if ($success) return $result;
+	else return FALSE;
 }
 
 function lab_nav_list() {
@@ -606,26 +625,24 @@ SUPPORTING CODE
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-object lab_publist(string $user, string $is_key)
+object impactpubs_publist(string $user)
 Properties: 
 user - the current user's name, 
 papers - an array of papers belonging to that user, 
-is_key - the impactstory key for that user (optional)
 
 Methods:
 import_from_pubmed(string $pubmed_query)
 import_from_orcid(string $orcid_id)
-make_html($key)
+make_html()
 
 Declared by:
-lab_update_user_meta, lab_register_settings, lab_update_lists
+impactpub_settings_form
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-class lab_publist {
-	public $usr, $papers = array(), $is_key;
-	function __construct($usr, $is_key = ''){
+class impactpubs_publist {
+	public $usr, $papers = array();
+	function __construct($usr){
 		$this->usr = $usr;
-		if ( $is_key != '' ) $this->is_key = $is_key;
 	}
 	/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Retrieve paper properties from a publication list.
@@ -637,9 +654,12 @@ class lab_publist {
 	* ydenberg CA[author] 
 	* ydenberg CA[author] AND (princeton[affiliation] OR brandeis[affiliation])
 	Assigns paper properties to the child objects of class paper.
-	Called by: lab_update_user_meta, lab_register_settings, lab_update_lists
+	Called by: impactpub_settings_form()
 	Calls:
-	lab_author_format()
+	impactpub_author_format()
+	
+	Exceptions:
+	'NoConnect': import fails because PubMed cannot be contacted
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 	function import_from_pubmed($pubmed_query) {
 		//format the author string with "%20" in place of a space to make a remote call
@@ -653,7 +673,7 @@ class lab_publist {
 		//other search
 		$result = wp_remote_retrieve_body( wp_remote_get($search) );
 		if ( !$result ) {
-			return False;
+			throw new Exception('NoConnect');
 		}
 		//open a new DOM and dump the results from esearch
 		$dom = new DOMDocument();
@@ -662,7 +682,7 @@ class lab_publist {
 		//to the url that will be sent to esummary
 		$ids = $dom->getElementsByTagName('Id');
 		//check that publications have been found
-		if ($ids) {
+		if ($ids) { //if no ids are found, the function will output "No publications".
 			foreach ($ids as $id){
 				//build the URL to retrieve individual records
 				$retrieve = $retrieve.$id->nodeValue.",";
@@ -670,13 +690,15 @@ class lab_publist {
 			}
 			//make a second call to pubmed's esummary utility
 			$result = wp_remote_retrieve_body( wp_remote_get($retrieve) );
-			if ( !$result ) die('There was a problem getting data from PubMed');
+			if ( !$result ) {
+				throw new Exception('NoConnect');
+			}
 			//load the results into a DOM, then retrieve the DocSum tags, which represent each paper that was found
 			$dom->loadXML($result);
 			$papers = $dom->getElementsByTagName('DocSum');
 			$paper_num = 0;
 			foreach ($papers as $paper){
-				$this->papers[$paper_num] = new lab_paper();
+				$this->papers[$paper_num] = new impactpubs_paper();
 				//id_types will be assigned as pmid in each case 
 				$this->papers[$paper_num]->id_type = 'pmid';
 				//get the id number associated with the record
@@ -712,7 +734,7 @@ class lab_publist {
 				//the date includes year and month. Strip them out. 
 				$this->papers[$paper_num]->year = substr($year, 0, 4);
 				//format the authors list
-				$this->papers[$paper_num]->authors = lab_author_format($authors);
+				$this->papers[$paper_num]->authors = impactpubs_author_format($authors);
 				$this->papers[$paper_num]->url = 'http://www.ncbi.nlm.nih.gov/pubmed/'.$this->papers[$paper_num]->id;
 				$paper_num++;
 			}
@@ -725,13 +747,17 @@ class lab_publist {
 	Assigns paper properties to the child objects of class paper.
 	Called by: impactpub_settings_form()
 	Calls:
-	lab_author_format()
+	impactpubs_author_format()
+	impactpubs_parse_bibtex()
+	
+	Exceptions:
+	'NoConnect' - import fails because ORCiD cannot be contacted.
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 	function import_from_orcid($orcid_id){
 		$search = 'http://feed.labs.orcid-eu.org/'.$orcid_id.'.json';
 		$result = wp_remote_retrieve_body( wp_remote_get($search) );
 		if ( !$result ) {
-			return False;
+			throw new Exception('NoConnect');
 		}
 		$works = json_decode($result);
 		$paper_num = 0;
@@ -759,7 +785,8 @@ class lab_publist {
 			if ( isset($work->author) ) {
 				$authors_arr = array();
 				foreach ($work->author as $author_ob) {
-					$authors_arr[] = $author_ob->family.', '.$author_ob->given;
+					$given = isset($author_ob->given) ? ', ' . $author_ob->given : '';
+					$authors_arr[] = $author_ob->family.$given;
 				}
 				$listing->authors = impactpubs_author_format($authors_arr);
 			} else {
@@ -796,60 +823,34 @@ class lab_publist {
 	/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	string $html make_html()
 	creates the HTML for a publication list.
-	Called by lab_update_user_meta, lab_register_settings, lab_update_lists
-	Calls lab_paper->make_html()
+	Called by impactpub_settings_form()
+	Calls impactpubs_paper->make_html()
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 	function make_html(){
 		if ( !count( $this->papers ) ) return FALSE;
 		$html = '';
-		if ($this->is_key) {
-			$html .= '<script type="text/javascript" src="http://impactstory.org/embed/v1/impactstory.js"></script>';
-		}
 		foreach ($this->papers as $paper){
-			$html .= $paper->make_html($this->is_key);
-		}
-		if ($this->is_key) {
-			$html .= '<p class = "lab_footnote"><i>Badges provided by ImpactStory. <a href = "http://www.impactstory.org">Learn more about altmetrics</a></i></p>';
+			$html .= $paper->make_html();
 		}
 		return $html;
-	}
-	/*~~~~~~~~~~~~~~~~~~~~~~~~~~
-	write_to_db()
-	Writes the html (only) of the retrieved search as metadata
-	Called by lab_update_user_meta, lab_register_settings, lab_update_lists
-	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-	function write_to_db(){
-		$user = $this->usr;
-		if ( !$value = $this->make_html() ) {
-			return FALSE;
-		}
-		if ($this->usr) {
-			if ( !add_user_meta($user, '_lab_publication_html', $value, TRUE ) ) {
-				update_user_meta($user, '_lab_publication_html', $value);
-			}	
-		} else {
-			if ( !add_option('lab_publication_html', $value) ) {
-				update_option('lab_publication_html', $value);
-			}
-		}	
 	}
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-object lab_paper(string $user, string $is_key)
+object impactpubs_paper(string $user, string $is_key)
 Properties: self-explanatory
 
 Methods:
 make_html(string $key)
 Key is the impactstory key, which is passed from the parent 
-lab_publist->make_html method because it is associated
+impactpubs_publist->make_html method because it is associated
 with a user, not a paper
 
 Declared by:
-lab_publist->import_from_pubmed()
-lab_publist->import_from_orcid()
+impactpub_publist->import_from_pubmed()
+impactpub_publist->import_from_orcid()
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-class lab_paper {
+class impactpubs_paper {
 	public $id_type, $id, $authors, $year, $title, $volume, $issue, $pages, $url, $full_citation;
 	/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	string html make_html(string $key) where $key is an impactstory key
@@ -857,12 +858,13 @@ class lab_paper {
 	Each paper is present as a <p>, with class "publication" and a unique id for CSS styling.
 	Could use a list, but formatting looks better this way without doing any CSS 
 	(easier for end-users, IMO).
-	Each element of the publication (authors, year, title, etc.) is present as a seperate span with a distinct class.
+	Each element of the publication (authors, year, title, etc.) is present as a seperate span with
+	a distinct class.
 	Called by:
-	lab_publist->make_html()
+	impactpubs_publist->make_html()
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-	function make_html($key = 0){
-		$html = '<p class = "impactpubs_publication" id = "'.$this->id.'">';
+	function make_html(){
+		$html = '<p class = "impactpubs_publication" id = "impactpubs-'.$this->id.'">';
 		if ( isset($this->full_citation) ){
 			echo $this->full_citation;
 		} else {
@@ -879,7 +881,7 @@ class lab_paper {
 			if ($this->url != '') {
 				$html .= '<a href = "'.$this->url.'">'.$this->title.'</a>';
 			} else {
-				$html .= $this->title;
+				$html .= $this->title.'</span>';
 			}
 			$html .= '</span> &nbsp';
 			
@@ -899,28 +901,21 @@ class lab_paper {
 				}	
 			}
 		}
-		
-		//the impactstory key
-		if ($key && $this->id_type != '' && $this->id != '') {
-			$html .= '<span class = "impactstory-embed" data-show-logo = "false" data-id = "'.$this->id.'"';
-			$html .= 'data-id-type = "'.$this->id_type.'" data-api-key="'.$key.'">';
-		}
 		$html .= "</p>";
 		return $html;
 	}
 }
 
-
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-string $authors lab_author_format(array $authors)
+string $authors impactpubs_author_format(array $authors[, boolean $lastnamefirst])
 
 Called by: 
-lab_publist->import_from_pubmed()
-lab_publist->import_from_orcid()
+impactpubs_publist->import_from_pubmed()
+impactpubs_publist->import_from_orcid()
 
 Takes an array of author names and returns a nicely formatted string. 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-function lab_author_format($authors){
+function impactpubs_author_format($authors){
 	$output = "";
 	foreach ($authors as $author){
 		$author = trim($author); 
@@ -928,6 +923,34 @@ function lab_author_format($authors){
 	}
 	$output = trim($output, ';,');
 	return $output;
+}
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Outputs a warning when Publication import from 
+PubMed or ORCiD fails. When this happens, the import  method
+throws an exception, and the value -1 is stored in 'lab_publication_success' or 
+'_lab_publication_success'. This function will echo warning HTML onto the admin 
+screen to warn the user that the import failed.
+
+Arguments:
+$id - user_id corresponding to the user whose publication could not be found.
+0 for the lab publications page.
+
+Called by:
+lab_register_settings()
+lab_update_user_meta()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+function lab_import_pub_warning() {
+	if ( isset($_GET['page']) && $_GET['page'] == 'lab-settings') {
+		$success = intval( get_option('lab_publication_success') );
+	}
+	else if ( isset( $_GET['user_id'] ) ) {
+		$success = intval( get_user_meta( $_GET['user_id'], '_lab_publication_success', TRUE ) );
+	}
+	else $success = 0;
+	if ( $success === -1 ) {
+		echo '<h2 class = "warning">Warning: Publication import service could not be contacted. The server may be down or there might be an error somewhere. Please try again in a few minutes.</h2>';
+	}
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -993,20 +1016,6 @@ function lab_validate_identifier($value, $pubsource = 'orcid'){
 		} else {
 			return '';		
 		}
-	}
-}
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~
-string validation lab_validate_is_key(string $value)
-Called by: lab_settings_form()
-Letters, numbers, and the - are allowed
-~~~~~~~~~~~~~~~~~~~~~~~~~*/
-function lab_validate_is_key($value){
-	//impactstory key contains only letters, numbers, and the dash (-) symbol
-	if ( preg_match('/[^A-Za-z0-9\-]/', $value) ) {
-		return 'Invalid ImpactStory API key';	
-	} else {
-		return '';
 	}
 }
 

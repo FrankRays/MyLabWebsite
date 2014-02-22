@@ -15,6 +15,7 @@
   <link rel = "stylesheet" href = "<?php echo $theme_url; ?>/css/bootstrap.min.css" type = "text/css" media = "all">
   <link rel = "stylesheet" href = "<?php echo $theme_url; ?>/style.css" type = "text/css" media = "all">  
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+  <script src="<?php echo $theme_url; ?>/js/jquery.js"></script>
   <script src="<?php echo $theme_url; ?>/js/bootstrap.min.js"></script>
   <script src="<?php echo $theme_url; ?>/js/jquery.sticky.js"></script>
   <script src="<?php echo $theme_url; ?>/js/lab_script.js"></script>

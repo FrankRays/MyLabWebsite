@@ -61,7 +61,7 @@ for ($pos = 1; $pos <= 8; $pos++) {
 				<p class = "bio col-xs-12"><?php echo $meta_user->bio; ?></p>
 			</div>
 			
-			<?php if ($meta_user->pubs_bool): ?>
+			<?php if ($meta_user->pubs_str): ?>
 				<div class = "row">
 					<h4 class = "col-xs-12">Publications</h4>
 					<div class = "col-xs-12">
@@ -85,11 +85,10 @@ Methods:
 Construct
 Properties:
 Self-explanatory
-pubs_bool is whether any publications exist in the database
-pubs_str is the actual HTML for that publications list
+pubs_str is the HTML for the publications list; FALSE if no pubs should be shown
 */
 class Lab_User {
-	public $wp_user, $id, $name, $pic, $position_num, $pos, $bio, $pubs_bool, $pubs_str;
+	public $wp_user, $id, $name, $pic, $position_num, $pos, $bio, $pubs_str;
 	function __construct($wp_user) {
 		$this->wp_user = $wp_user;
 		$this->id = $wp_user->ID;
@@ -107,11 +106,7 @@ class Lab_User {
 			case 8: $this->pos = 'Lab member'; break;
 		}		
 		$this->bio = get_user_meta( $this->id, 'description', TRUE);
-		if ( $this->pubs_str = get_user_meta( $this->id, '_lab_publication_html', TRUE ) ){
-			$this->pubs_bool = TRUE;
-		} else {
-			$this->pubs_bool = FALSE;
-		}
+		$this->pubs_str = lab_display_pubs( $this->id );
 	}
 }
 
