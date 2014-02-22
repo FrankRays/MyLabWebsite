@@ -760,6 +760,7 @@ class impactpubs_publist {
 			throw new Exception('NoConnect');
 		}
 		$works = json_decode($result);
+		if (!$works) return FALSE;
 		$paper_num = 0;
 		foreach ($works as $work){
 			$listing = new impactpubs_paper();
@@ -983,8 +984,6 @@ function validate_honeypot($field){
 	}
 }
 
-
-//next 3 functions should be moved into javascript
 /*~~~~~~~~~~~~~~~~~~~~~~~~~
 string validation lab_validate_pubsource(string $value)
 Called by: lab_settings_form()
